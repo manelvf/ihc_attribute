@@ -1,25 +1,42 @@
 """Database utility functions"""
-from typing import Dict, List, Any, Iterator
+from typing import Optional, Iterator, Dict, Any, List
 import sqlite3
 
 
-def get_customer_journeys_batch(db_path: str, batch_size: int = 100) -> Iterator[Dict[str, List[Dict[str, Any]]]]:
+def get_customer_journeys_batch(
+        db_path: str,
+        batch_size: int = 100,
+        start_date: Optional[str] = None,
+        end_date: Optional[str] = None
+    ) -> Iterator[Dict[str, List[Dict[str, Any]]]]:
     """
     Query and build customer journeys from session_sources and conversions tables in batches.
     
     Args:
         db_path: Path to the SQLite database file
         batch_size: Number of conversions to process in each batch
+        start_date: Optional start date filter for conversions
+        end_date: Optional end date filter for conversions
         
     Yields:
         Dictionary with conv_id as key and list of session details as value for each batch
     """
     conn = sqlite3.connect(db_path)
     conn.row_factory = sqlite3.Row
+
+
+    conversion_start_date_filter = f" AND c.conv_date >= '{start_date}' " if start_date else ""
+    conversion_end_date_filter = f" AND c.conv_date <= '{end_date}' " if end_date else ""
+    conversion_query = f"""
+        SELECT DISTINCT conv_id FROM conversions WHERE 1 
+        {conversion_start_date_filter}
+        {conversion_end_date_filter}
+        ORDER BY conv_id
+    """
     
     # First, get all conversion IDs
     cursor = conn.cursor()
-    cursor.execute("SELECT DISTINCT conv_id FROM conversions ORDER BY conv_id")
+    cursor.execute(conversion_query)
     all_conv_ids = [row[0] for row in cursor.fetchall()]
     
     # Process conversions in batches

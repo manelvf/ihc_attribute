@@ -10,7 +10,10 @@ from src.ihc_attribution_client import IHCAttributionClient, ConfigError
 def process_batches(db_path: str, 
                    conv_type_id: str, 
                    batch_size: int = 100,
-                   redistribution_parameter: Optional[Dict[str, Any]] = None) -> List[Dict[str, Any]]:
+                   redistribution_parameter: Optional[Dict[str, Any]] = None,
+                   start_date: Optional[str] = None,
+                   end_date: Optional[str] = None
+) -> List[Dict[str, Any]]:
     """
     Process and send customer journeys in batches.
     
@@ -27,7 +30,7 @@ def process_batches(db_path: str,
     responses = []
     total_conversions = 0
 
-    customer_journeys = get_customer_journeys_batch(db_path, batch_size)
+    customer_journeys = get_customer_journeys_batch(db_path, batch_size, start_date, end_date)
 
     for batch_num, journey_batch in enumerate(customer_journeys, 1):
         total_conversions += len(journey_batch)
