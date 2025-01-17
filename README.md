@@ -20,6 +20,7 @@ Installed with Poetry (see below).
 
 - dotenv
 - requests
+- apache-airflow
 
 
 ### Installation
@@ -31,8 +32,6 @@ Using the command line:
 ```
     poetry install
 ```
-
-- 
 
 Note: A database with the history conversions should be provided.
 
@@ -71,13 +70,17 @@ Those are the components and their purpose:
 
 ### Pipeline Workflow
 
+For the development, I followed the path of retrieving the data that I needed from the tables, then execute the tranformations needed for calling the API, and then accumlate the results that the API sent.
+
+The last part was the creation of the CSV reports, once the data was already inserted in the result tables.
+
 The execution workflow is the following:
 
 - Initialize DB. Clean result tables if needed.
 - Read database elements.
-- Fill database table.
+- Fill database tables.
 - Call IHC API.
-- Process the responses and store them in db.
+- Process the responses calculating  and store them in db.
 - Generate report based on the processed answers.
 
 Most of the workload is performed by the `batch_processor`  module, with a final call to the `report` module.
@@ -85,8 +88,12 @@ Most of the workload is performed by the `batch_processor`  module, with a final
 
 ## TODO
 
-- Make use of object orientation for keeping track of the DB connection.
+- Make use of object oriented classes for keeping track of the DB connection.
 - Make the DB module generic so the database could be replaced by a different one when required.
+- Dockerize the application for deployment. Use gunicorn or equivalent for serving the application.
+- Make it a web service if required.
+- Sanitize the inputs properly.
+- Add authentication and authorization if required, in order to enforce the security.
 - Retry API call when they fail.
 - Add unit tests and e2e tests.
 - Execute the tests in a CI/CD pipeline.
