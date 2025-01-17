@@ -3,3 +3,7 @@
 *.db
 .vscode
 .env
+
+*.csv
+
+__pycache__/
