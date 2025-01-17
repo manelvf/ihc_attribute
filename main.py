@@ -49,7 +49,7 @@ def main():
     responses = process_batches(
         db_path=DB_PATH,
         conv_type_id=CONV_TYPE_ID,
-        batch_size=BATCH_SIZE
+        batch_size=BATCH_SIZE,
         start_date=start_date,
         end_date=end_date
     )
@@ -73,19 +73,22 @@ def parse_dates():
     # Parse arguments
     try:
         args = parser.parse_args()
+
+        start_date = args.start_date
+        end_date = args.end_date
         
         # Additional validation: check if end date is after start date
-        if args.end_date < args.start_date:
-            raise ValueError("End date must be after start date")
+        if start_date and end_date:
+            start_date_obj = datetime.strptime(args.start_date, '%Y-%m-%d')
+            end_date_obj = datetime.strptime(args.end_date, '%Y-%m-%d')
             
-        # If all validations pass, print the dates
-        print(f"Start date: {args.start_date.date()}")
-        print(f"End date: {args.end_date.date()}")
+            if end_date_obj < start_date_obj:
+                raise ValueError("End date must be after start date")
         
     except ValueError as e:
         print(f"Error: {e}")
 
-    return args.start_date, args.end_date
+    return start_date, end_date
 
 
 def validate_date(date_string):

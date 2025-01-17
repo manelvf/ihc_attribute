@@ -19,7 +19,6 @@ Key features:
 Installed with Poetry (see below).
 
 - dotenv
-- typer
 - requests
 
 
@@ -74,7 +73,7 @@ Those are the components and their purpose:
 
 The execution workflow is the following:
 
-- Initialize DB.
+- Initialize DB. Clean result tables if needed.
 - Read database elements.
 - Fill database table.
 - Call IHC API.
@@ -88,6 +87,7 @@ Most of the workload is performed by the `batch_processor`  module, with a final
 
 - Make use of object orientation for keeping track of the DB connection.
 - Make the DB module generic so the database could be replaced by a different one when required.
+- Retry API call when they fail.
 - Add unit tests and e2e tests.
 - Execute the tests in a CI/CD pipeline.
 - Add benchmarks for identifying the bottlenecks.
