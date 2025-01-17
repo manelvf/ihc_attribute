@@ -128,36 +128,6 @@ def insert_customer_journey(db_path, conv_id, session_id, ihc):
         conn.close()
 
 
-def insert_channel_reporting(db_path, records):
-    """
-    Insert or update records in the channel_reporting table.
-    
-    Args:
-        db_path: Path to the SQLite database
-        records: List of tuples containing (channel_name, date, cost, ihc, ihc_revenue)
-                date should be in 'YYYY-MM-DD' format
-    """
-    conn = sqlite3.connect(db_path)
-    cursor = conn.cursor()
-    
-    try:
-        # Using INSERT OR REPLACE to handle cases where the record might already exist
-        cursor.executemany('''
-            INSERT OR REPLACE INTO channel_reporting 
-            (channel_name, date, cost, ihc, ihc_revenue)
-            VALUES (?, ?, ?, ?, ?)
-        ''', records)
-        
-        conn.commit()
-        
-    except sqlite3.Error as e:
-        print(f"Error inserting channel reporting records: {e}")
-        conn.rollback()
-        
-    finally:
-        conn.close()
-
-
 def fill_channel_reporting(db_path):
     """Fill the channel_reporting table with aggregated data"""
     conn = sqlite3.connect(db_path)
@@ -198,11 +168,46 @@ def fill_channel_reporting(db_path):
     
     conn.commit()
 
-    print("\nSample results from channel_reporting:")
-    print("Channel Name | Date | Cost | IHC | IHC Revenue")
-    print("-" * 60)
+
+def get_channel_reporting(db_path):
+    conn = sqlite3.connect(db_path)
+    cursor = conn.cursor()
+
+    cursor.execute('SELECT * FROM channel_reporting')
+    conn.commit()
+
     for row in cursor.fetchall():
-        print(f"{row[0]} | {row[1]} | {row[2]} | {row[3]} | {row[4]}")
-    
-    # Close the connection
+        yield row
+
     conn.close()
+    
+
+def get_channel_metrics(db_path):
+    """
+    Reads channel reporting data from SQLite, 
+    """
+    
+    try:
+        # Connect to the SQLite database
+        conn = sqlite3.connect(db_path)
+        cursor = conn.cursor()
+        
+        # Get all data from channel_reporting table
+        cursor.execute("""
+            SELECT channel_name, date, cost, ihc, ihc_revenue 
+            FROM channel_reporting
+            ORDER BY date, channel_name
+        """)
+        
+        # Fetch all rows
+        rows = cursor.fetchall()
+        for row in rows:
+            yield row
+        
+    except Exception as e:
+        print(f"Error processing data: {str(e)}")
+
+    finally:
+        # Close database connection
+        if 'conn' in locals():
+            conn.close()

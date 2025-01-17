@@ -3,7 +3,7 @@ from typing import Optional, Dict, Any, List
 
 import requests
 
-from src.db import get_customer_journeys_batch
+from src.db import get_customer_journeys_batch, insert_customer_journey
 from src.ihc_attribution_client import IHCAttributionClient, ConfigError
 
 
@@ -26,8 +26,10 @@ def process_batches(db_path: str,
     client = IHCAttributionClient()  # Will use API key from environment
     responses = []
     total_conversions = 0
-    
-    for batch_num, journey_batch in enumerate(get_customer_journeys_batch(db_path, batch_size), 1):
+
+    customer_journeys = get_customer_journeys_batch(db_path, batch_size)
+
+    for batch_num, journey_batch in enumerate(customer_journeys, 1):
         total_conversions += len(journey_batch)
         formatted_journeys = format_journeys_for_api(journey_batch)
         
@@ -37,7 +39,7 @@ def process_batches(db_path: str,
                 conv_type_id=conv_type_id,
                 redistribution_parameter=redistribution_parameter
             )
-            responses.append(response)
+            responses.extend(response["value"])
             print(f"Batch {batch_num}: Successfully processed {len(journey_batch)} conversions")
             print(f"Running total: {total_conversions} conversions processed")
             
@@ -48,11 +50,17 @@ def process_batches(db_path: str,
             print(f"Configuration error: {e}")
             raise
 
-        # TODO: REMOVE THIS
-        break
-    
-    print(f"response: {responses}")
     return responses
+
+
+def process_responses(db_path, responses: list):
+    """Process the responses from the IHC API and insert the results into the database."""
+    for response in responses:
+        conv_id = response["conversion_id"]
+        session_id = response["session_id"]
+        ihc = response["ihc"]
+
+        insert_customer_journey(db_path, conv_id, session_id, ihc)
 
 
 def format_journeys_for_api(journeys: Dict[str, List[Dict[str, Any]]]) -> List[Dict[str, Any]]:

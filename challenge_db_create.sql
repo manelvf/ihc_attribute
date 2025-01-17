@@ -33,6 +33,8 @@ CREATE TABLE IF NOT EXISTS attribution_customer_journey (
                                     ihc real NOT NULL,
                                     PRIMARY KEY(conv_id,session_id)
                                 );
+
+DELETE FROM attribution_customer_journey;
                                 
 CREATE TABLE IF NOT EXISTS channel_reporting (
                             channel_name text NOT NULL,
@@ -42,3 +44,5 @@ CREATE TABLE IF NOT EXISTS channel_reporting (
                             ihc_revenue real NOT NULL,
                             PRIMARY KEY(channel_name,date)
                         );
+
+DELETE FROM channel_reporting;
