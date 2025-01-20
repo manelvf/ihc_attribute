@@ -25,7 +25,7 @@ from dags.lib.db import execute_sql_file
 load_dotenv()
 
 
-SQL_FILE_PATH = os.environ.get("SQL_FILE_PATH", "challenge_db_create.sql")
+SQL_FILE_PATH = os.environ.get("SQL_FILE_PATH", "fixtures/challenge_db_create.sql")
 DB_PATH = os.environ.get("DB_PATH", "challenge.db")
 
 
