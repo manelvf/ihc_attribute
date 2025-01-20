@@ -3,16 +3,15 @@ from typing import Optional, Dict, Any, List
 
 import requests
 
-from src.db import get_customer_journeys_batch, insert_customer_journey
-from src.ihc_attribution_client import IHCAttributionClient, ConfigError
+from dags.lib.db import get_customer_journeys_batch, insert_customer_journey
+from dags.lib.ihc_attribution_client import IHCAttributionClient, ConfigError
+from dags.lib.dates import parse_dates
 
 
 def process_batches(db_path: str, 
                    conv_type_id: str, 
                    batch_size: int = 100,
                    redistribution_parameter: Optional[Dict[str, Any]] = None,
-                   start_date: Optional[str] = None,
-                   end_date: Optional[str] = None
 ) -> List[Dict[str, Any]]:
     """
     Process and send customer journeys in batches.
@@ -26,6 +25,8 @@ def process_batches(db_path: str,
     Returns:
         List of API responses for each batch
     """
+    start_date, end_date = parse_dates()
+
     client = IHCAttributionClient()  # Will use API key from environment
     responses = []
     total_conversions = 0

@@ -2,7 +2,8 @@
 import csv
 from decimal import Decimal, InvalidOperation
 
-from src.db import get_channel_metrics
+from dags.lib.db import get_channel_metrics
+
 
 def save_channel_metrics(db_path, output_file_path):
     """
