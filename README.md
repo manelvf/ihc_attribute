@@ -4,6 +4,8 @@
 
 A data processing service that analyzes customer journey data to determine marketing channel attribution for conversions. It processes customer interactions in batches through the IHC Attribution API to calculate incremental holding contribution (IHC) values for each touchpoint. The service generates detailed reports with key marketing metrics like Cost Per Order (CPO) and Return on Ad Spend (ROAS) to help optimize marketing spend across channels.
 
+Uses Apache Airflow for scheduling the tasks and executes them sequentially using a pipeline.
+
 Key features:
 - Batch processing of customer journey data
 - Integration with IHC Attribution API
@@ -12,12 +14,22 @@ Key features:
 - Data persistence using SQLite
 
 
+## Development notes
+
+First I started to develop the service as a monolith, then I split it in different independent modules, and for the last part I added the task framework in order to schedule the execution.
+
+Data is stored in an *sqlite* database. The schema is provided in the fixtures folder.
+
+Modules are included in the `lib` folder inside the `dags` folder, but they could be extracted to a separated one, as long as their path is reachable. 
+
+
 ## Installation and Set Up
 
 ### Dependencies
 
 Installed with Poetry (see below).
 
+- Apache Airflow
 - dotenv
 - requests
 - apache-airflow
@@ -33,21 +45,45 @@ Using the command line:
     poetry install
 ```
 
+- Initialize the poetry shell:
+
+```
+    poetry shell
+```
+
+- Setup Apache Airflow (https://airflow.apache.org/docs/apache-airflow/stable/start.html).
+
+    Airflow DAGs folder configuration should point to the dags folder.
+
+
+- Add root folder to the python path:
+
+```
+    export PYTHONPATH=$PYTHONPATH:<root folder>
+```
+
+- Execute setup.py for initializing the database:
+
+```
+    python setup.py
+```
+
 Note: A database with the history conversions should be provided.
 
 ## Execution
 
-- Initialize the shell (this will enable the virtual environment):
+- Initialize the virtual environment (in case it isn't):
 
 ```
     poetry shell 
 ```
 
-- Run the service
+- Start the Airflow server.
 
 ```
-   python3 main.py
+    airflow standalone
 ```
+
 
 ## Output
 
