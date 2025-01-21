@@ -11,15 +11,13 @@ from dags.lib.ihc_attribution_client import ConfigError
 from dags.lib.report import save_channel_metrics
 
 
-SQL_FILE_PATH="challenge_db_create.sql"
-DB_PATH = "challenge.db"
+DB_PATH = os.environ.get("DB_PATH", "challenge.db")
 
 CONV_TYPE_ID = os.getenv('IHC_CONV_TYPE_ID')  # Optional: can also get conv_type_id from env
 BATCH_SIZE = int(os.getenv('BATCH_SIZE', '100'))  # Optional: can configure batch size in env
 CSV_FILE = os.getenv('CSV_FILE', 'output/channel_metrics.csv')
 
 
-# Define the DAG
 with DAG(
     dag_id='attibution',
     start_date=datetime(2025, 1, 20),  # Start date
